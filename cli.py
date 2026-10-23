@@ -1,16 +1,12 @@
 """A terminal chatbot for testing the engine."""
+from bots import tutor
 from engine import config
 from engine.llm import LLMError, Message, OllamaClient
-
-SYSTEM_PROMPT = (
-    "You are a patient study tutor. Explain things simply, step by step, "
-    "and check that the student understood."
-)
 
 
 def main() -> None:
     llm = OllamaClient(config.OLLAMA_BASE_URL, config.OLLAMA_MODEL)
-    history: list[Message] = [{"role": "system", "content": SYSTEM_PROMPT}]
+    history: list[Message] = [{"role": "system", "content": tutor.SYSTEM_PROMPT}]
 
     print(f"Study tutor ({config.OLLAMA_MODEL}). Type 'quit' to exit.\n")
 
@@ -23,7 +19,7 @@ def main() -> None:
 
         history.append({"role": "user", "content": user_text})
         try:
-            reply = llm.chat(history)
+            reply = llm.chat(history, temperature=tutor.TEMPERATURE)
         except LLMError as e:
             print(f"[error] {e}\n")
             history.pop()  # drop the message that failed, so history stays valid
