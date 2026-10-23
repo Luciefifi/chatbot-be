@@ -18,15 +18,19 @@ def main() -> None:
             continue
 
         history.append({"role": "user", "content": user_text})
+        print("Tutor: ", end="", flush=True)
+        reply = ""
         try:
-            reply = llm.chat(history, temperature=tutor.TEMPERATURE)
+            for piece in llm.chat_stream(history, temperature=tutor.TEMPERATURE):
+                print(piece, end="", flush=True)
+                reply += piece
         except LLMError as e:
-            print(f"[error] {e}\n")
+            print(f"\n[error] {e}\n")
             history.pop()  # drop the message that failed, so history stays valid
             continue
 
+        print("\n")
         history.append({"role": "assistant", "content": reply})
-        print(f"Tutor: {reply}\n")
 
 
 if __name__ == "__main__":
